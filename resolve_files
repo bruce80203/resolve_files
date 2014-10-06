@@ -1,0 +1,141 @@
+#!/bin/bash
+
+. ./.resolve_files
+
+function ping_diskstation
+{
+    ping -c1 $storage_server >/dev/null
+    if [ $? -eq 0 ]; then
+        echo "ping successful, diskstation available"
+    else
+        echo "ping unsuccessful, looks like diskstation is not available"
+        exit 1
+    fi
+}
+
+function mount_file_system
+{
+    if mount | grep $mount_location > /dev/null; then
+        echo "volume is already mounted"
+    else
+        echo "attemping to mount diskstation now"
+        if [ ! -d $mount_location ]; then
+            mkdir $mount_location
+        fi
+        mount $storage_server:/volume1 $mount_location
+        if [ $? -eq 0 ]; then
+            echo "mount is successful"
+        else
+            echo "mount unsuccessful"
+            exit 1
+        fi
+    fi
+}
+
+function edit_parameters
+{
+    echo "opening parmeter file for editing"
+    sleep 2
+    vi ${diskstation_location}/${host}.chk_dirs.param
+    param_recs=`cat ${diskstation_location}/${host}.chk_dirs.param | egrep -v '^#'`
+}
+
+function umount_file_system
+{
+    umount $mount_location
+    if [ $? -eq 0 ]; then
+        echo "umount command successful"
+    fi
+}
+
+function compare
+{
+    list_area=$1
+    cut_num=`echo $list_area | wc -c`
+    compare_area=$2
+    type=$3
+    if [[ -z $list_area || -z $compare_area || -z $type ]]; then
+        echo "the parameter setup is not correct key variables are not set"
+        exit 1
+    fi 
+    if [ ! -e $list_area ]; then
+        echo "$list_area does not exist"
+        exit 1
+    fi
+    if [ "$(ls -A $list_area)" ]; then
+
+        find $list_area/* > tmp.$$ # get file list, including all subdirectories
+        local_count=`wc -l tmp.$$ | awk '{print $1}'`
+        echo "$local_count files"
+        ((total_count += local_count))
+
+        while read filename_from_list; do # iterate using each file name
+
+            tmp_file_string=`echo $filename_from_list | cut -c$cut_num-`
+
+            filename_to_compare=${compare_area}${tmp_file_string}
+
+                if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
+                    echo "copying $filename_from_list to $filename_to_compare file does not exist on copied area"
+                    cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
+                    if [ "$2" = "$local_area" ]; then # want chown run if we are writing local otherwise root owns file
+                        chown $user:$group $filename_to_compare 
+                    fi
+                fi
+
+                if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "copy" ]]; then
+                    echo "removing $filename_from_list since this is a copied area"
+                    rm $filename_from_list
+                fi
+
+                if [[ -f $filename_from_list && $filename_from_list -nt $filename_to_compare ]]; then
+                    echo "newer $filename_from_list replacing $filename_to_compare"
+                    cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
+                fi
+
+                if [[ -f $filename_from_list && $filename_from_list -ot $filename_to_compare ]]; then
+                    echo "replacing $filename_from_list because it is older than $filename_to_compare"
+                    cp --preserve=link,mode,timestamps $filename_to_compare $filename_from_list
+                fi
+
+                if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
+                    echo "creating $filename_to_compare since it does not exist"
+                    mkdir $filename_to_compare
+                fi
+
+        done < tmp.$$
+        rm tmp.$$
+    fi
+}
+
+# MAIN
+
+ping_diskstation 		# if we are not able to ping diskstation the script will exit 1 here
+edit_parameters
+mount_file_system
+
+for dir in $param_recs; do
+    BKP_LABELS_ARRAY=(`echo $dir | tr '|' "\n"`)
+    local_area=${BKP_LABELS_ARRAY[0]}
+    mounted_area=${BKP_LABELS_ARRAY[1]}
+    type=${BKP_LABELS_ARRAY[2]}
+    if [[ $type == "main" ]]; then
+        rev_type="copy"
+    elif [[ $type == "copy" ]]; then
+        rev_type="main"
+    else
+        echo "type is not set correctly must be main or copy"
+        exit 1
+    fi
+    echo "sending compare $local_area $mounted_area $type"
+    compare $local_area $mounted_area $type
+    echo "sending compare $mounted_area $local_area $rev_type"
+    compare $mounted_area $local_area $rev_type
+done
+
+echo "sleeping 3 seconds"
+sleep 3
+umount_file_system
+echo "$total_count file comparisons made"
+date
+exit 0
