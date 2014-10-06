@@ -1,0 +1,17 @@
+#!/bin/bash
+
+storage_server=192.168.1.151
+mount=/home/bruce/mnt/volume1
+
+function mount_file_system
+{
+    if [ -d $mount ];then
+        rm -rf $mount
+    fi
+    mkdir $mount
+    sudo mount $storage_server:/volume1 $mount
+}
+
+# MAIN function
+
+ping -q -c1 $storage_server >/dev/null && mount_file_system || echo "unable to mount $storage_server to volume1"
