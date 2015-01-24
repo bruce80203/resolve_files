@@ -99,8 +99,15 @@ function compare
                 fi
 
                 if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
-                    echo "creating $filename_to_compare since it does not exist"
+                    echo "creating directory $filename_to_compare since it does not exist"
                     mkdir $filename_to_compare
+                fi
+
+                if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == "copy" ]]; then
+                    if find $filename_from_list -maxdepth 0 -empty | read v; then # if folder empty, don't like, must be a better way to check
+                        echo "removing directory $filename_from_list since it doesn't match main"
+                        rmdir $filename_from_list
+                    fi
                 fi
 
         done < tmp.$$
