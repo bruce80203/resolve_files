@@ -1,9 +1,10 @@
 #!/bin/bash
 
-. .tracked.src
+. .tracked.src # this sources .untracked_hard_coded.src
 
 # MAIN
 
+# function definitions from src file
 ping_diskstation 		# if we are not able to ping diskstation the script will exit 1 here
 edit_parameters
 mount_file_system
