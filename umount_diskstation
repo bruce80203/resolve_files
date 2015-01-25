@@ -1,5 +1,5 @@
 #!/bin/bash
 
-mount=/home/bruce/mnt/volume1
+. .tracked.src
 
-sudo umount $mount
+umount_file_system
