@@ -1,0 +1,3 @@
+# syntax:
+# <local root dir of backup>|<mounted eqivalent directory>|<copy or main>
+# before using this file rename to <hostname>.chk_dirs.param

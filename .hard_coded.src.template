@@ -1,0 +1,3 @@
+user=<username>
+group=<users group>
+storage_server=<ip number or dns name>

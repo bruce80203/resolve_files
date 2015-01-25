@@ -1,4 +1,4 @@
-. .untracked_hard_coded.src
+. .hard_coded.src
 IFS=$(echo -en "\n\b") # change for loop seperator from space to end of line
 diskstation_location=/home/${user}/diskstation
 host=`hostname`
