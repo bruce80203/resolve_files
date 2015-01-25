@@ -1,7 +1,8 @@
 resolve_files
 =============
-The git repository named resolve_files project contains main script resolve_files, 3 related scripts to mount, unmount and check mount status
-tracked.src a parameters template and untracked src template.
+This repository revolves around the main script with the same name
+3 related scripts to mount, unmount and check mount status
+tracked.src a parameters template, untracked src template named hard_coded.src.template
 hard_coded.src is untracked and should be created from the tracked template
-the parameters file can be created from the template but is easier to create from an existing working copy
-run syntax: sudo ./resolve_files
+the parameters file can be created from the template but is easier to understand and create from an existing working copy
+run syntax: sudo ./resolve_files # must be run with root privs
