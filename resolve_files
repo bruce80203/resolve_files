@@ -1,13 +1,20 @@
 #!/bin/bash
 
+#######################################
+#
+# Author: Bruce Woodcock
+# Description:
+# creates an identical mirror of the directory/file structure on the networked system
+# which may be shared with linux installations. Windows too! (dual mount systems)
+# this banner added: 2015-01-30
+#
+#######################################
 . .tracked.src # this sources .untracked_hard_coded.src
 
-# MAIN
-
 # function definitions from src file
-ping_diskstation 		# if we are not able to ping diskstation the script will exit 1 here
+ping_diskstation 		# if we are not able to ping diskstation the script will exit here
 edit_parameters
-mount_file_system
+mount_file_system               # mounts file server or exits if unsuccessful
 
 for dir in $param_recs; do
     BKP_LABELS_ARRAY=(`echo $dir | tr '|' "\n"`)
@@ -22,15 +29,16 @@ for dir in $param_recs; do
         echo "type is not set correctly must be main or copy"
         exit 1
     fi
+
     echo "sending compare $local_area $mounted_area $type"
-    compare $local_area $mounted_area $type
+    compare $local_area $mounted_area $type                            # compare function uses -e and -ot -nt to verify existence and compare file modification time
     echo "sending compare $mounted_area $local_area $rev_type"
-    compare $mounted_area $local_area $rev_type
+    compare $mounted_area $local_area $rev_type                        # compare runs again in reverse comparing local to files on file server
 done
 
-echo "sleeping 3 seconds"
+echo "sleeping 3 seconds"       # making sure file copies complete before unmounting file server
 sleep 3
-umount_file_system
+umount_file_system              # another function
 echo "$total_count file comparisons made"
 date
 exit 0
