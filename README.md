@@ -60,9 +60,9 @@ here is an example of the parameters file on my Raspberry Pi:
 
 Requirements:
 
-1) Each system must be pre configured, able to nfs mount the file server, use mount, unmount and check status scripts to test
+1) Each system must be pre configured, able to nfs mount the file server. You can use the mount, unmount and check status scripts to test
 2) The hard_coded.src file needs to be created and edited to work for local user, create file by copying from hard_coded.src.template
-3) A parameters file must be in place which can be created from the template but is easier to create from an existing working copy
-4) script must be run as root or user with sudo root privileges
+3) A parameters file must be in place which can be created from the template but is easier to create from an existing copy or above examples: <hostname>.chk_dirs.param
+4) script must be run as root or user with sudo privileges
 
 sudo ./resolve_files
