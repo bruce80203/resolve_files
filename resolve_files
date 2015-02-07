@@ -12,7 +12,7 @@
 . .tracked.src # this sources .untracked_hard_coded.src
 
 # function definitions from src file
-ping_diskstation 		# if we are not able to ping diskstation the script will exit here
+ping_fileserver 		# if we are not able to ping diskstation the script will exit here
 edit_parameters
 mount_file_system               # mounts file server or exits if unsuccessful
 

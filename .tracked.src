@@ -1,18 +1,18 @@
 . .hard_coded.src
 IFS=$(echo -en "\n\b") # change for loop seperator from space to end of line
-diskstation_location=/home/${user}/diskstation
+local_location=/home/${user}/resolve_files
 host=`hostname`
-param_recs=`cat ${diskstation_location}/${host}.chk_dirs.param | egrep -v '^#'`
+param_recs=`cat ${local_location}/${host}.chk_dirs.param | egrep -v '^#'`
 mount_location="/home/${user}/mnt/volume1"
 total_count=0
 
-function ping_diskstation
+function ping_fileserver
 {
     ping -c1 $storage_server >/dev/null
     if [ $? -eq 0 ]; then
-        echo "ping successful, diskstation available"
+        echo "ping successful, fileserver available"
     else
-        echo "ping unsuccessful, looks like diskstation is not available"
+        echo "ping unsuccessful, looks like fileserver is not available"
         exit 1
     fi
 }
@@ -22,7 +22,7 @@ function mount_file_system
     if mount | grep $mount_location > /dev/null; then
         echo "volume is already mounted"
     else
-        echo "attemping to mount diskstation now"
+        echo "attemping to mount fileserver now"
         if [ ! -d $mount_location ]; then
             mkdir $mount_location
         fi
@@ -40,8 +40,8 @@ function edit_parameters
 {
     echo "opening parmeter file for editing"
     sleep 2
-    vi ${diskstation_location}/${host}.chk_dirs.param
-    param_recs=`cat ${diskstation_location}/${host}.chk_dirs.param | egrep -v '^#'`
+    vi ${local_location}/${host}.chk_dirs.param
+    param_recs=`cat ${local_location}/${host}.chk_dirs.param | egrep -v '^#'`
 }
 
 function umount_file_system
