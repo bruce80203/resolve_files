@@ -1,68 +1,23 @@
-resolve_files
+﻿resolve_files
 =============
-This script is hugely beneficial. Used to create mirrored files systems on separate linux installations via go between nfs file server.
+Used to create mirrored directory structures on separate file systems.
+Resolve_files is a bash shell script which I use to share files with my networked attached storage system (NAS).
+Runs on the local system, the client side, to pull and push files to the nfs mounted NAS.
 
-I'll try to explain as best I can through an example
-
-My Windows laptop has the following directory structures:
-
-/Users/Bruce/Documents
-/Users/Bruce/Pictures
-/Users/Bruce/Music
-/Users/Bruce/Videos
-
-Linux Mint which I boot through usb has similar directories:
-
-/home/bruce/Documents
-/home/bruce/Pictures
-/home/bruce/Music
-/home/bruce/Videos
-
-also a couple more I want backed up:
-
-/home/bruce/perl
-/home/bruce/sql
-/home/bruce/scripts
-
-created directories on network files server:
-
-/volumeA/Documents
-/volumeA/Pictures
-/volumeA/Music
-/volumeA/Videos
-/volumeA/perl
-/volumeA/sql
-/volumeA/scripts
-
-here is my parameters file for the dual mount system
-
-/Users/Bruce/Documents|/volumeA/Documents|main 
-/Users/Bruce/Pictures|/volumeA/Pictures|main   
-/Users/Bruce/Music|/volumeA/Music|main
-/Users/Bruce/Videos|/volumeA/Videos|main       
-/home/bruce/Documents|/volumeA/Documents|copy  
-/home/bruce/Pictures|/volumeA/Pictures|copy    
-/home/bruce/Music|/volumeA/Music|copy          
-/home/bruce/Videos|/volumeA/Videos|copy
-/home/bruce/perl|/volumeA/perl|main            
-/home/bruce/sql|/volumeA/sql|main
-/home/bruce/scripts|/volumeA/scripts|main
-
-syntax of paramters file: local location|mounted location|main or copy
-main field is defined when you decide to share OUT, all other systems should define this area as 'copy' with the intention of creating a mirrored copy from file server
-how our Documents folder was shared in the above example: Windows > mounted file system > Linux Mint
-
-here is an example of the parameters file on my Raspberry Pi:
-
-/home/pi/perl|/volumeA/perl|copy
-/home/pi/sql|/volumeA/sql|copy
-/home/pi/scripts|/volumeA/scripts|copy         
-
-Requirements:
-
-1) Each system must be pre configured, able to nfs mount the file server. You can use the mount, unmount and check status scripts to test
-2) The hard_coded.src file needs to be created and edited to work for local user, create file by copying from hard_coded.src.template
-3) A parameters file must be in place which can be created from the template but is easier to create from an existing copy or above examples: <hostname>.chk_dirs.param
-4) script must be run as root or user with sudo privileges
-
+requires
+=============
+Local system must be able to execute a bash shell script (resolve_files).
+Local system must be NFS mount capable prior to running the script.
+Script uses the linux mount command, mount_diskstation and umount_diskstation are scripts to test the mount capability.
+Must run as root, watch out this script can be dangerous and wipe out your file system if you are not careful!
+I run with sudo:
 sudo ./resolve_files
+
+What it does:
+=============
+1) Ping NAS, if we can't ping, NAS exits with error message.
+2) Opens up the parameter file. User can change mapped settings on each system here. The copy or non main side will become a mirror of the other side.
+3) Mount NAS.
+4) Compare function creates local list, checks for existence of each file on the mounted system and copies or deletes missing files. Timestamps of existing files are checked, new files replace older files.
+5) Compare function is run again in reverse comparing NAS with local files. Steps 4 and 5 run in a loop, once for each area mapped.
+6) Unmount the NAS, return count and time stamp.
