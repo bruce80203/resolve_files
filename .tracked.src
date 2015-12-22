@@ -64,12 +64,12 @@ function directory_compare
     fi
     find $list_area -type d > tmp.$$ # get directory list, including all subdirectories
     local_count=`wc -l tmp.$$ | awk '{print $1}'`
+    echo "$local_count directories"
     ((total_count += local_count))
     while read dir_name_from_list; do # iterate using each directory name
         prev_removed_dir_char_count=`echo -n $prev_removed_dir | wc -c`
         compare_string_from_curr_rec=`echo $dir_name_from_list | cut -c1-$prev_removed_dir_char_count`
-        if [[ $compare_string_from_curr_rec = $prev_removed_dir ]]; then
-            echo "JUMPING RECORD"
+        if [[ $compare_string_from_curr_rec = $prev_removed_dir ]]; then # no need to remove subdirs since we have rm -rf parent dir
             continue
         fi
         tmp_dir=`echo $dir_name_from_list | cut -c$cut_num-`
