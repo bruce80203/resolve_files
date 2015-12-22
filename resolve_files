@@ -9,7 +9,7 @@
 # this banner added: 2015-01-30
 #
 #######################################
-. .tracked.src # this sources .untracked_hard_coded.src
+. .tracked.src # this sources .untracked_hard_coded.src, 2 source files one parameter file
 
 # function definitions from src file
 ping_fileserver 		# if we are not able to ping diskstation the script will exit here
@@ -30,13 +30,22 @@ for dir in $param_recs; do
         exit 1
     fi
 
-    echo "sending compare $local_area $mounted_area $type"
-    compare $local_area $mounted_area $type                            # compare function uses -e and -ot -nt to verify existence and compare file modification time
-    echo "sending compare $mounted_area $local_area $rev_type"
-    compare $mounted_area $local_area $rev_type                        # compare runs again in reverse comparing local to files on file server
+    # NEW DIRECTORY CHECK FUNCTION HERE
+    if [[ $type == "copy" ]]; then
+        echo "removing non matching directories on $local_area"
+        directory_compare $local_area $mounted_area
+    else
+        echo "removing empty directories on $mounted_area"
+        directory_compare $mounted_area $local_area
+    fi
+
+    echo "sending file_compare $local_area $mounted_area $type"
+    file_compare $local_area $mounted_area $type
+    echo "sending file_compare $mounted_area $local_area $rev_type"
+    file_compare $mounted_area $local_area $rev_type
 done
 
-echo "sleeping 3 seconds"       # making sure file copies complete before unmounting file server
+echo "sleeping 3 seconds to complete copy processes"
 sleep 3
 umount_file_system              # another function
 echo "$total_count file comparisons made"
