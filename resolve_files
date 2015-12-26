@@ -32,7 +32,7 @@ for dir in $param_recs; do
 
     # NEW DIRECTORY CHECK FUNCTION HERE
     if [[ $type == "copy" ]]; then
-        echo "removing non matching directories on $local_area"
+        echo "removing empty directories on $local_area"
         directory_compare $local_area $mounted_area
     else
         echo "removing empty directories on $mounted_area"
@@ -45,7 +45,7 @@ for dir in $param_recs; do
     file_compare $mounted_area $local_area $rev_type
 done
 
-echo "sleeping 3 seconds to complete copy processes"
+echo "sleeping 3 seconds to complete copy process"
 sleep 3
 umount_file_system              # another function
 echo "$total_count file comparisons made"
