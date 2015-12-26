@@ -32,10 +32,10 @@ for dir in $param_recs; do
 
     # NEW DIRECTORY CHECK FUNCTION HERE
     if [[ $type == "copy" ]]; then
-        echo "removing empty directories on $local_area"
+        echo "removing non matching directories on $local_area"
         directory_compare $local_area $mounted_area
     else
-        echo "removing empty directories on $mounted_area"
+        echo "removing non matching directories on $mounted_area"
         directory_compare $mounted_area $local_area
     fi
 
