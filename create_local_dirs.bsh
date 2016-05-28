@@ -1,0 +1,15 @@
+#!/bin/bash
+
+file=$(hostname).chk_dirs.param
+
+IFS=$'\n'
+for rec in $(cat $file); do
+    dir=$(echo $rec | cut -f1 -d\|)
+    echo "checking for $dir"
+    if [ ! -e $dir ]; then
+        echo "creating $dir"
+        mkdir -p "$dir"
+    else
+        echo "$dir exists"
+    fi
+done
