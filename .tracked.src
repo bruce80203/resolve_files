@@ -2,7 +2,8 @@
 IFS=$(echo -en "\n\b") # change for loop seperator from space to end of line
 local_location=/home/${user}/resolve_files
 host=`hostname`
-param_recs=`cat ${local_location}/${host}.chk_dirs.param | egrep -v '^#'`
+param_file=${host}.chk_dirs.param
+param_recs=`cat ${local_location}/${param_file} | egrep -v '^#'`
 mount_location="/home/${user}/mnt/volume1"
 total_count=0
 
@@ -40,8 +41,8 @@ function edit_parameters
 {
     echo "opening parmeter file for editing"
     sleep 2
-    vi ${local_location}/${host}.chk_dirs.param
-    param_recs=`cat ${local_location}/${host}.chk_dirs.param | egrep -v '^#'`
+    vi ${local_location}/${param_file}
+    param_recs=`cat ${local_location}/$param_file | egrep -v '^#'`
 }
 
 function umount_file_system
@@ -50,6 +51,29 @@ function umount_file_system
     if [ $? -eq 0 ]; then
         echo "umount command successful"
     fi
+}
+
+function check_recs
+{
+    dirs=$(cat $param_file | cut -f1 -d\| | tr -d "\#")
+    dirs=$dirs$'\n'$(cat $param_file | cut -f2 -d\|)
+    for dir in $dirs; do
+        if [ ! -e $dir ]; then
+            echo "problem with $dir in $param_file"
+            echo "directory does not exist comparison will not run"
+            run_comparison=false
+            break
+        fi
+    done
+    copymain=$(cat $param_file | cut -f3 -d\|)
+    for word in $copymain; do
+        if [[ $word != +(copy|main) ]]; then
+            echo "copy or main word missing in $param_file"
+            echo "$word not = copy or main"
+            run_comparison=false
+            break
+        fi
+    done
 }
 
 function directory_compare
@@ -110,7 +134,7 @@ function file_compare
                     echo "copying $filename_from_list to $filename_to_compare file does not exist on copied area"
                     cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
                     if [ "$2" = "$local_area" ]; then # want chown run if we are writing local otherwise root owns file
-                        chown $user:$group $filename_to_compare 
+                        chown $user:$group $filename_to_compare
                     fi
                 fi
 

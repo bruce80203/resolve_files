@@ -4,48 +4,50 @@
 #
 # Author: Bruce Woodcock
 # Description:
-# creates an identical mirror of the directory/file structure on the networked system
-# which may be shared with linux installations. Windows too! (dual mount systems)
+# creates an identical mirror of the directory/file structure
 # this banner added: 2015-01-30
 #
 #######################################
 . .tracked.src # this sources .untracked_hard_coded.src, 2 source files one parameter file
 
+run_comparison=true
 # function definitions from src file
 ping_fileserver 		# if we are not able to ping diskstation the script will exit here
 edit_parameters
 mount_file_system               # mounts file server or exits if unsuccessful
+check_recs                      # checks parameter file
 
-for dir in $param_recs; do
-    BKP_LABELS_ARRAY=(`echo $dir | tr '|' "\n"`)
-    local_area=${BKP_LABELS_ARRAY[0]}
-    mounted_area=${BKP_LABELS_ARRAY[1]}
-    type=${BKP_LABELS_ARRAY[2]}
-    if [[ $type == "main" ]]; then
-        rev_type="copy"
-    elif [[ $type == "copy" ]]; then
-        rev_type="main"
-    else
-        echo "type is not set correctly must be main or copy"
-        exit 1
-    fi
+if [ $run_comparison == "true" ];then
+    for dir in $param_recs; do
+        BKP_LABELS_ARRAY=(`echo $dir | tr '|' "\n"`)
+        local_area=${BKP_LABELS_ARRAY[0]}
+        mounted_area=${BKP_LABELS_ARRAY[1]}
+        type=${BKP_LABELS_ARRAY[2]}
+        if [[ $type == "main" ]]; then
+            rev_type="copy"
+        elif [[ $type == "copy" ]]; then
+            rev_type="main"
+        else
+            echo "type is not set correctly must be main or copy"
+            exit 1
+        fi
 
-    # NEW DIRECTORY CHECK FUNCTION HERE
-    if [[ $type == "copy" ]]; then
-        echo "removing non matching directories on $local_area"
-        directory_compare $local_area $mounted_area
-    else
-        echo "removing non matching directories on $mounted_area"
-        directory_compare $mounted_area $local_area
-    fi
+        if [[ $type == "copy" ]]; then
+            echo "removing non matching directories on $local_area"
+            directory_compare $local_area $mounted_area
+        else
+            echo "removing non matching directories on $mounted_area"
+            directory_compare $mounted_area $local_area
+        fi
 
-    echo "sending file_compare $local_area $mounted_area $type"
-    file_compare $local_area $mounted_area $type
-    echo "sending file_compare $mounted_area $local_area $rev_type"
-    file_compare $mounted_area $local_area $rev_type
-done
+        echo "sending file_compare $local_area $mounted_area $type"
+        file_compare $local_area $mounted_area $type
+        echo "sending file_compare $mounted_area $local_area $rev_type"
+        file_compare $mounted_area $local_area $rev_type
+    done
+fi
 
-echo "sleeping 3 seconds to complete copy process"
+echo "sleeping 3 seconds"
 sleep 3
 umount_file_system              # another function
 echo "$total_count file comparisons made"
