@@ -13,3 +13,8 @@ for rec in $(cat $file); do
         echo "$dir exists"
     fi
 done
+
+if [ ! -e ~/mnt/volume1 ]; then
+    echo "creating ~/mnt/volume1"
+    mkdir -p ~/mnt/volume1
+fi
