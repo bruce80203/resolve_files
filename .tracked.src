@@ -133,9 +133,9 @@ function file_compare
 
                 if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
                     echo "copying $filename_from_list to $filename_to_compare file does not exist on copied area"
-                    if [ $ostype = linux ]; then
+                    if [ "$ostype" = linux ]; then
                         cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
-                    elif [ $ostype = mac ]; then
+                    elif [ "$ostype" = mac ]; then
                         cp -p $filename_from_list $filename_to_compare
                     else
                         echo "$ostype not set correctly"
@@ -153,9 +153,9 @@ function file_compare
 
                 if [[ -f $filename_from_list && $filename_from_list -nt $filename_to_compare ]]; then
                     echo "newer $filename_from_list replacing $filename_to_compare"
-                    if [ $ostype = linux ]; then
+                    if [ "$ostype" = linux ]; then
                         cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
-                    elif [ $ostype = mac ]; then
+                    elif [ "$ostype" = mac ]; then
                         cp -p $filename_from_list $filename_to_compare
                     else
                         echo "$ostype not set correctly"
@@ -165,9 +165,9 @@ function file_compare
 
                 if [[ -f $filename_from_list && $filename_from_list -ot $filename_to_compare ]]; then
                     echo "replacing $filename_from_list because it is older than $filename_to_compare"
-                    if [ $ostype = linux ]; then
+                    if [ "$ostype" = linux ]; then
                         cp --preserve=link,mode,timestamps $filename_to_compare $filename_from_list
-                    elif [ $ostype = mac ]; then
+                    elif [ "$ostype" = mac ]; then
                         cp -p $filename_to_compare $filename_from_list
                     else
                         echo "$ostype not set correctly"
