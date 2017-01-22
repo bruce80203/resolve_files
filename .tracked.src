@@ -1,10 +1,11 @@
 . .hard_coded.src
 IFS=$(echo -en "\n\b") # change for loop seperator from space to end of line
-local_location=/home/${user}/resolve_files
+local_location=${userhome}/resolve_files
 host=`hostname`
 param_file=${host}.chk_dirs.param
 param_recs=`cat ${local_location}/${param_file} | egrep -v '^#'`
 mount_location="/home/${user}/mnt/volume1"
+mount_location="${userhome}/mnt/volume1"
 total_count=0
 
 function ping_fileserver
@@ -67,7 +68,7 @@ function check_recs
     done
     copymain=$(cat $param_file | cut -f3 -d\|)
     for word in $copymain; do
-        if [[ $word != +(copy|main) ]]; then
+        if ! [[ $word =~ copy|main ]]; then
             echo "copy or main word missing in $param_file"
             echo "$word not = copy or main"
             run_comparison=false
@@ -79,7 +80,7 @@ function check_recs
 function directory_compare
 {
     list_area=$1
-    cut_num=`echo $list_area | wc -c`
+    cut_num=`echo $list_area | wc -c | sed 's/ //g'`
     compare_area=$2
     prev_removed_dir=' '
     if [ ! -e $list_area ]; then
@@ -91,7 +92,7 @@ function directory_compare
     echo "$local_count directories"
     ((total_count += local_count))
     while read dir_name_from_list; do # iterate using each directory name
-        prev_removed_dir_char_count=`echo -n $prev_removed_dir | wc -c`
+        prev_removed_dir_char_count=`echo -n $prev_removed_dir | wc -c | sed 's/ //g'`
         compare_string_from_curr_rec=`echo $dir_name_from_list | cut -c1-$prev_removed_dir_char_count`
         if [[ $compare_string_from_curr_rec = $prev_removed_dir ]]; then # no need to remove subdirs since we have rm -rf parent dir
             continue
@@ -110,7 +111,7 @@ function directory_compare
 function file_compare
 {
     list_area=$1
-    cut_num=`echo $list_area | wc -c`
+    cut_num=`echo $list_area | wc -c | sed 's/ //g'`
     compare_area=$2
     type=$3
     if [ ! -e $list_area ]; then
@@ -132,7 +133,8 @@ function file_compare
 
                 if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
                     echo "copying $filename_from_list to $filename_to_compare file does not exist on copied area"
-                    cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
+#                    cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
+                    cp -p $filename_from_list $filename_to_compare
                     if [ "$2" = "$local_area" ]; then # want chown run if we are writing local otherwise root owns file
                         chown $user:$group $filename_to_compare
                     fi
@@ -145,12 +147,14 @@ function file_compare
 
                 if [[ -f $filename_from_list && $filename_from_list -nt $filename_to_compare ]]; then
                     echo "newer $filename_from_list replacing $filename_to_compare"
-                    cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
+#                    cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
+                    cp -p $filename_from_list $filename_to_compare
                 fi
 
                 if [[ -f $filename_from_list && $filename_from_list -ot $filename_to_compare ]]; then
                     echo "replacing $filename_from_list because it is older than $filename_to_compare"
-                    cp --preserve=link,mode,timestamps $filename_to_compare $filename_from_list
+#                    cp --preserve=link,mode,timestamps $filename_to_compare $filename_from_list
+                    cp -p $filename_to_compare $filename_from_list
                 fi
 
                 if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
