@@ -2,3 +2,4 @@ user=<username>
 userhome=<users home directory>
 group=<users group>
 storage_server=<ip number or dns name>
+ostype=<linux|mac>
