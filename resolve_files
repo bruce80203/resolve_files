@@ -57,7 +57,7 @@ if [ $# -ge 1 ]; then
     case "$1" in
         -s|--shutdown)
             echo "received shutdown flag -s"
-            if [ ostype == "linux" ]; then
+            if [ $ostype == "linux" ]; then
                 init 0
             else
                 echo "non linux system, shutdown flag ignored"
