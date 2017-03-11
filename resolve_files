@@ -59,8 +59,10 @@ if [ $# -ge 1 ]; then
             echo "received shutdown flag -s"
             if [ $ostype == "linux" ]; then
                 init 0
+            elif [ $ostype == "mac" ]; then
+                halt now
             else
-                echo "non linux system, shutdown flag ignored"
+                echo "unknown os, shutdown flag ignored"
             fi
             ;;
         *)
