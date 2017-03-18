@@ -17,22 +17,22 @@ edit_parameters
 mount_file_system               # mounts file server or exits if unsuccessful
 check_recs                      # checks parameter file
 
-if [ $run_comparison == "true" ];then
+if [ $run_comparison == true ];then
     for dir in $param_recs; do
         BKP_LABELS_ARRAY=(`echo $dir | tr '|' "\n"`)
         local_area=${BKP_LABELS_ARRAY[0]}
         mounted_area=${BKP_LABELS_ARRAY[1]}
         type=${BKP_LABELS_ARRAY[2]}
-        if [[ $type == "main" ]]; then
-            rev_type="copy"
-        elif [[ $type == "copy" ]]; then
-            rev_type="main"
+        if [[ $type == main ]]; then
+            rev_type=copy
+        elif [[ $type == copy ]]; then
+            rev_type=main
         else
             echo "type is not set correctly must be main or copy"
             exit 1
         fi
 
-        if [[ $type == "copy" ]]; then
+        if [[ $type == copy ]]; then
             echo "removing non matching directories on $local_area"
             directory_compare $local_area $mounted_area
         else
@@ -54,14 +54,14 @@ echo "$total_count file comparisons made"
 date
 
 if [ $# -ge 1 ]; then
-    case "$1" in
+    case $1 in
         -s|--shutdown)
             echo "received shutdown flag -s"
-            if [ $ostype == "arch" ]; then
+            if [ $ostype == arch ]; then
                 systemctl poweroff
-            elif [ $ostype == "debian" ] || [ $ostype == "redhat" ]; then
+            elif [ $ostype == debian -0 $ostype == redhat -o $ostype == suse ]; then
                 init 0
-            elif [ $ostype == "mac" ]; then
+            elif [ $ostype == mac ]; then
                 halt now
             else
                 echo "unknown os, shutdown flag ignored"

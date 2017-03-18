@@ -4,8 +4,8 @@ local_location=${userhome}/resolve_files
 host=`hostname`
 param_file=${host}.chk_dirs.param
 param_recs=`cat ${local_location}/${param_file} | egrep -v '^#'`
-mount_location="/home/${user}/mnt/volume1"
-mount_location="${userhome}/mnt/volume1"
+mount_location=/home/${user}/mnt/volume1
+mount_location=${userhome}/mnt/volume1
 total_count=0
 
 function ping_fileserver
@@ -120,10 +120,10 @@ function file_compare
         exit 1
     fi
 
-    if [ "$ostype" == "redhat" -o "$ostype" == "debian" -o "$ostype" == "arch" ]; then
-        cptype="linux"
+    if [ $ostype == redhat -o $ostype == debian -o $ostype == arch ]; then
+        cptype=linux
     else
-        cptype="mac"
+        cptype=mac
     fi
 
 
@@ -138,11 +138,11 @@ function file_compare
 
             filename_to_compare=${compare_area}${tmp_file_string}
 
-                if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
+                if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == main ]]; then
                     echo "copying $filename_from_list to $filename_to_compare file does not exist on copied area"
-                    if [[ $cptype == "linux" ]]; then
+                    if [[ $cptype == linux ]]; then
                         cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
-                    elif [[ $cptype == "mac" ]]; then
+                    elif [[ $cptype == mac ]]; then
                         cp -p $filename_from_list $filename_to_compare
                     else
                         echo "cptype not set correctly"
@@ -153,7 +153,7 @@ function file_compare
                     fi
                 fi
 
-                if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "copy" ]]; then
+                if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == copy ]]; then
                     echo "removing $filename_from_list since this is a copied area"
                     rm $filename_from_list
                 fi
@@ -172,9 +172,9 @@ function file_compare
 
                 if [[ -f $filename_from_list && $filename_from_list -ot $filename_to_compare ]]; then
                     echo "replacing $filename_from_list because it is older than $filename_to_compare"
-                    if [[ $cptype == "linux" ]]; then
+                    if [[ $cptype == linux ]]; then
                         cp --preserve=link,mode,timestamps $filename_to_compare $filename_from_list
-                    elif [[ $cptype == "mac" ]]; then
+                    elif [[ $cptype == mac ]]; then
                         cp -p $filename_to_compare $filename_from_list
                     else
                         echo "$cptype not set correctly"
@@ -183,7 +183,7 @@ function file_compare
 
                 fi
 
-                if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
+                if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == main ]]; then
                     echo "creating directory $filename_to_compare since it does not exist"
                     mkdir $filename_to_compare
                 fi
