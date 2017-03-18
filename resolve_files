@@ -59,7 +59,7 @@ if [ $# -ge 1 ]; then
             echo "received shutdown flag -s"
             if [ $ostype == arch ]; then
                 systemctl poweroff
-            elif [ $ostype == debian -0 $ostype == redhat -o $ostype == suse ]; then
+            elif [ $ostype == debian -o $ostype == redhat -o $ostype == suse ]; then
                 init 0
             elif [ $ostype == mac ]; then
                 halt now
