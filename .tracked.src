@@ -114,17 +114,24 @@ function file_compare
     cut_num=`echo $list_area | wc -c | sed 's/ //g'`
     compare_area=$2
     type=$3
+
     if [ ! -e $list_area ]; then
         echo "$list_area does not exist"
         exit 1
     fi
-    if [ "$(ls -A $list_area)" ]; then
 
+    if [ "$ostype" == "redhat" -o "$ostype" == "debian" -o "$ostype" == "arch" ]; then
+        cptype="linux"
+    else
+        cptype="mac"
+    fi
+
+
+    if [ "$(ls -A $list_area)" ]; then
         find $list_area/* > tmp.$$ # get file list, including all subdirectories
         local_count=`wc -l tmp.$$ | awk '{print $1}'`
         echo "$local_count files"
         ((total_count += local_count))
-
         while read filename_from_list; do # iterate using each file name
 
             tmp_file_string=`echo $filename_from_list | cut -c$cut_num-`
@@ -133,15 +140,15 @@ function file_compare
 
                 if [[ -f $filename_from_list && ! -e $filename_to_compare && $type == "main" ]]; then
                     echo "copying $filename_from_list to $filename_to_compare file does not exist on copied area"
-                    if [ "$ostype" = linux ]; then
+                    if [[ $cptype == "linux" ]]; then
                         cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
-                    elif [ "$ostype" = mac ]; then
+                    elif [[ $cptype == "mac" ]]; then
                         cp -p $filename_from_list $filename_to_compare
                     else
-                        echo "$ostype not set correctly"
+                        echo "cptype not set correctly"
                         exit
                     fi
-                    if [ "$2" = "$local_area" ]; then # want chown run if we are writing local otherwise root owns file
+                    if [[ $2 == $local_area ]]; then # want chown run if we are writing local otherwise root owns file
                         chown $user:$group $filename_to_compare
                     fi
                 fi
@@ -153,24 +160,24 @@ function file_compare
 
                 if [[ -f $filename_from_list && $filename_from_list -nt $filename_to_compare ]]; then
                     echo "newer $filename_from_list replacing $filename_to_compare"
-                    if [ "$ostype" = linux ]; then
+                    if [[ $cptype == linux ]]; then
                         cp --preserve=link,mode,timestamps $filename_from_list $filename_to_compare
-                    elif [ "$ostype" = mac ]; then
+                    elif [[ $cptype == mac ]]; then
                         cp -p $filename_from_list $filename_to_compare
                     else
-                        echo "$ostype not set correctly"
+                        echo "$cptype not set correctly"
                         exit
                     fi
                 fi
 
                 if [[ -f $filename_from_list && $filename_from_list -ot $filename_to_compare ]]; then
                     echo "replacing $filename_from_list because it is older than $filename_to_compare"
-                    if [ "$ostype" = linux ]; then
+                    if [[ $cptype == "linux" ]]; then
                         cp --preserve=link,mode,timestamps $filename_to_compare $filename_from_list
-                    elif [ "$ostype" = mac ]; then
+                    elif [[ $cptype == "mac" ]]; then
                         cp -p $filename_to_compare $filename_from_list
                     else
-                        echo "$ostype not set correctly"
+                        echo "$cptype not set correctly"
                         exit
                     fi
 
