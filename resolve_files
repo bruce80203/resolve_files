@@ -13,7 +13,7 @@
 run_comparison=true
 # function definitions from src file
 ping_fileserver 		# if we are not able to ping diskstation the script will exit here
-edit_parameters 2>/dev/null
+edit_parameters 2>/dev/null     # send error message to dev/null while running with resolve script
 mount_file_system               # mounts file server or exits if unsuccessful
 check_recs                      # checks parameter file
 
