@@ -1,3 +1,4 @@
 .hard_coded.src
 *.param
 tmp.*
+logfiles

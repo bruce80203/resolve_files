@@ -1,0 +1,5 @@
+#!/bin/bash
+datestring=$(date +%Y-%m-%d:%H:%M)
+logname=./logfiles/runlog${datestring}
+sudo touch $logname
+sudo ./resolve_files $1 | sudo tee $logname
