@@ -9,8 +9,6 @@ for rec in $(cat $file); do
     if [ ! -e $dir ]; then
         echo "creating $dir"
         mkdir -p "$dir"
-    else
-        echo "$dir exists"
     fi
 done
 
@@ -18,7 +16,6 @@ if [ ! -e ~/mnt/volume1 ]; then
     echo "creating ~/mnt/volume1"
     mkdir -p ~/mnt/volume1
 fi
-
 
 if [ ! -e ~/resolve_files/logfiles ]; then
     echo "creating ~/resolve_files/logfiles"
