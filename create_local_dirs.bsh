@@ -18,3 +18,9 @@ if [ ! -e ~/mnt/volume1 ]; then
     echo "creating ~/mnt/volume1"
     mkdir -p ~/mnt/volume1
 fi
+
+
+if [ ! -e ~/resolve_files/logfiles ]; then
+    echo "creating ~/resolve_files/logfiles"
+    mkdir ~/resolve_files/logfiles
+fi
