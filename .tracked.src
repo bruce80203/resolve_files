@@ -186,6 +186,9 @@ function file_compare
                 if [[ -d $filename_from_list && ! -e $filename_to_compare && $type == main ]]; then
                     echo "creating directory $filename_to_compare since it does not exist"
                     mkdir $filename_to_compare
+                    if [[ $2 == $local_area ]]; then # want chown run if we are writing local otherwise root owns file
+                        chown $user:$group $filename_to_compare
+                    fi
                 fi
         done < tmp.$$
         rm tmp.$$
