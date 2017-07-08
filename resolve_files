@@ -18,6 +18,7 @@ mount_file_system               # mounts file server or exits if unsuccessful
 check_recs                      # checks parameter file
 
 if [ $run_comparison == true ];then
+    date
     for dir in $param_recs; do
         BKP_LABELS_ARRAY=(`echo $dir | tr '|' "\n"`)
         local_area=${BKP_LABELS_ARRAY[0]}
@@ -45,32 +46,35 @@ if [ $run_comparison == true ];then
         echo "sending file_compare $mounted_area $local_area $rev_type"
         file_compare $mounted_area $local_area $rev_type
     done
-fi
 
-echo "sleeping 3 seconds"
-sleep 3
-umount_file_system              # another function
-echo "$total_count file comparisons made"
-date
+    echo "sleeping 3 seconds"
+    sleep 3
+    umount_file_system              # another function
+    echo "$total_count file comparisons made"
+    date
 
-if [ $# -ge 1 ]; then
-    case $1 in
-        -s|--shutdown)
-            echo "received shutdown flag -s"
-            if [ $ostype == arch ]; then
-                systemctl poweroff
-            elif [ $ostype == debian -o $ostype == redhat -o $ostype == suse ]; then
-                init 0
-            elif [ $ostype == mac ]; then
-                halt now
-            else
-                echo "unknown os, shutdown flag ignored"
-            fi
-            ;;
-        *)
-            echo "no shutdown argument"
-            ;;
-    esac
+    if [ $# -ge 1 ]; then
+        case $1 in
+            -s|--shutdown)
+                echo "received shutdown flag -s"
+                if [ $ostype == arch ]; then
+                    systemctl poweroff
+                elif [ $ostype == debian -o $ostype == redhat -o $ostype == suse ]; then
+                    init 0
+                elif [ $ostype == mac ]; then
+                    halt now
+                else
+                    echo "unknown os, shutdown flag ignored"
+                fi
+                ;;
+            *)
+                echo "no shutdown argument"
+                ;;
+        esac
+    else
+        echo "no shutdown argument"
+    fi
 else
-    echo "no shutdown argument"
+    sleep 1 # umount doesn't work without the sleep
+    umount_file_system
 fi
