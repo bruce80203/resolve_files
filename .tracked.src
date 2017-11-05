@@ -4,8 +4,7 @@ local_location=${userhome}/resolve_files
 host=`hostname`
 param_file=${host}.chk_dirs.param
 param_recs=`cat ${local_location}/${param_file} | egrep -v '^#'`
-mount_location=/home/${user}/mnt/volume1
-mount_location=${userhome}/mnt/volume1
+mount_location=/mnt/volume1
 total_count=0
 
 function ping_fileserver

@@ -11,9 +11,9 @@ for rec in $(cat $file); do
     fi
 done
 
-if [ ! -e ~/mnt/volume1 ]; then
-    echo "creating ~/mnt/volume1"
-    mkdir -p ~/mnt/volume1
+if [ ! -e /mnt/volume1 ]; then
+    echo "creating /mnt/volume1"
+    mkdir -p /mnt/volume1
 fi
 
 if [ ! -e ~/resolve_files/logfiles ]; then
